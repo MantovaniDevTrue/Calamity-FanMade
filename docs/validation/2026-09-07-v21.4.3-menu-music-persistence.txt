@@ -1,0 +1,40 @@
+Calamity FM v21.4.3 — Menu + Music Persistence Fix
+===================================================
+
+Base:
+Calamity_FM_PreSlimeGod_Boss_Audit_v21_4_2_Missing_Save_Dirs_Hotfix.tl
+
+Issue:
+Calamity menu background and menu music could disappear together after a long
+menu/world-creation/loading session.
+
+Root cause addressed:
+1. ModLoader.OnWorldLoad() could call MenuLoader.OnLeave() while Terraria was
+   still displaying a game-menu/loading screen, clearing CurrentMenu and
+   restoring vanilla menu assets before the UI actually ended.
+2. The Calamity menu background stopped reasserting ownership if another mod
+   supplied a custom bgStyle, allowing the Calamity background to be displaced
+   during long menu transitions.
+
+Changes:
+- MenuLoader.Update() self-restores the selected menu if gameMenu is still true
+  but CurrentMenu was cleared by a lifecycle transition.
+- Menu music is reasserted on the same menu tick after restoration.
+- OnWorldLoad only tears down the menu immediately when gameMenu has actually
+  ended.
+- DoUpdate tears down a retained menu on the first real in-world tick.
+- UpdateBGVisibility_FrontLayer keeps the selected Calamity menu background
+  active only while Main.gameMenu == true.
+
+Runtime files changed from v21.4.2: 3
+- Modified/1.mod/TL/Core/ModLoader.js
+- Modified/1.mod/TL/Hooks/Main.js
+- Modified/1.mod/TL/Loaders/MenuLoader.js
+
+Validation:
+- JavaScript syntax: PASS — 1056/1056
+- JSON parse: PASS — 59/59
+- Relative imports: PASS — 4651 checked, 0 missing
+- File set: PASS — 2477 files, 0 added, 0 removed
+- Registry/content files: unchanged
+- ZIP integrity: PASS
