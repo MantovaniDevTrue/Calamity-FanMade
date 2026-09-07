@@ -1,21 +1,34 @@
-# Development entry: `<topic>`
+# Development entry — `<full-version or topic>`
 
-- **Date (UTC):**
-- **Author:**
-- **Related commit/build:**
+Use this when a fix, investigation, regression, or architectural change needs more detail than a normal changelog line.
 
-## Objective
+## Context
 
-Describe the intended outcome.
+- **Date:**
+- **Version/build:**
+- **Base build:**
+- **Related commit:**
+- **Reported problem:**
 
-## Changes
+## Diagnosis
 
-List source, asset, packaging, or documentation changes.
+Explain what was actually causing the problem. Include relevant log/error information and the affected systems or files.
+
+## Changes made
+
+List the intentional source or packaging changes. Keep unrelated behavior out of scope when possible.
+
+## Preserved behavior
+
+Record important behavior that must remain unchanged, especially damage, AI, loot, progression, recipes, worldgen, IDs/registry order, or known-good fixes from the base build.
 
 ## Validation
 
-Record commands, environments, results, and links to formal reports.
+- **Static checks:**
+- **Runtime test:** not tested / failed / passed / passed with exceptions
+- **Device / TLPro version when relevant:**
+- **Related validation report:**
 
-## Follow-up
+## Result / next step
 
-List unresolved work, risks, or decisions.
+State whether the build should remain testing, be promoted to stable, be archived, or needs another fix.
