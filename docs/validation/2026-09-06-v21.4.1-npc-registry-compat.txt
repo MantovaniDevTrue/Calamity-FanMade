@@ -1,0 +1,45 @@
+Calamity FM — Pre-Slime God Boss Audit v21.4.1 NPC Registry Compat
+==================================================================
+
+Base: Calamity_FM_PreSlimeGod_Boss_Audit_v21_4.tl
+Reason: NPCID.Search.Add() duplicate numeric key during SetupContent (Key: 763).
+
+Diagnosis
+---------
+The crash occurs before boss AI runs. The first Calamity NPC block allocation can
+start on a numeric NPC type already occupied by another loaded ExMod/TLPro mod.
+The old allocator derived TypeOffset from the number of registered names, but
+name count is not guaranteed to equal the next free numeric NPC id across
+multiple independent ExMod-derived packages.
+
+Fix
+---
+Modified only:
+  Modified/1.mod/TL/Loaders/NPCLoader.js
+
+NPCLoader now reserves one contiguous collision-free numeric type block for all
+73 Calamity NPCs before assigning their Type values. It checks NPCID.Search for
+occupied ids and moves the whole block forward when necessary. Internal Calamity
+NPC registration order is unchanged. PostSetupContent also keeps NPCCount at
+least as large as the highest type actually assigned, preventing later arrays or
+loops from truncating a shifted block.
+
+No try/catch was added around NPCID.Search.Add(), and duplicate IDs are not
+silently ignored.
+
+Static validation
+-----------------
+JavaScript syntax: PASS — 1056/1056
+JSON parse: PASS — 59/59
+Relative imports: PASS — 4651 checked, 0 missing
+NPC registrations: PASS — 73
+RegisterNPCs.js order vs validated v21.3: IDENTICAL
+Files changed vs v21.4: 1
+Package files: 2477
+ZIP integrity: PASS
+
+Boss audit preservation
+-----------------------
+All five v21.4 boss-audit runtime changes are preserved unchanged. No summon,
+boss, projectile, item, registry-order, texture, or balance file was changed by
+this compatibility hotfix.
