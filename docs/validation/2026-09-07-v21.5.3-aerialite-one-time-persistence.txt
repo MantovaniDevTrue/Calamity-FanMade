@@ -1,0 +1,38 @@
+Calamity FM v21.5.3 — Aerialite One-Time Persistence Fix
+=========================================================
+Base: Calamity FM v21.5.2 — World Load Stability Hotfix
+
+Problem
+-------
+AerialiteProgressionSystem.ReloadMetadata() only considered Aerialite generated when:
+  generated == true AND coords.length > 0
+
+That made a world whose persistent generation flag was valid but whose coordinate list was
+empty/unavailable restart the existing-world sky scan after every world entry. This caused the
+chat message "Aerialite adormecida está se formando..." to reappear and performed unnecessary
+tile scans every session.
+
+Fix
+---
+The persistent calamity:aerialite:generated flag is now authoritative. Fresh-world worldgen and
+the one-time existing-world migration set this flag only after their generation pass. Once it is
+true, the port does not start Aerialite generation again simply because the coordinate list is empty.
+
+This matches the original Calamity lifecycle:
+- dormant Aerialite generation happens during world generation once;
+- enchantment happens once after the first Hive Mind or Perforator Hive defeat.
+
+Runtime files changed
+---------------------
+Modified/1.mod/Content/Systems/AerialiteProgressionSystem.js
+
+Validation
+----------
+JS syntax: PASS — 1057/1057
+JSON files present: 59
+Relative imports: PASS — 4660 checked, 0 missing
+Package file count: 2478 (base 2478)
+ZIP integrity: PASS
+
+No boss AI, summons, tile hooks, mining hooks, worldgen placement, IDs, damage, loot, or balance
+were changed in this hotfix.
