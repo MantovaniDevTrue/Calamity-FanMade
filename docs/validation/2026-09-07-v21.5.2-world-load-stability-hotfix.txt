@@ -1,0 +1,55 @@
+Calamity FM v21.5.2 — World Load Stability Hotfix
+=================================================
+Base: Calamity FM v21.5 General Runtime Performance Audit
+Regression source: v21.5.1 Tile / Mining Hotpath Audit
+
+Crash evidence from visible_logs (15)
+-------------------------------------
+- Two consecutive attempts crash at the same native location while world loading:
+  TL::Mods::ModStorage::loadWorldData()
+- Native failure: SIGSEGV / SEGV_MAPERR, fault address 72.
+- Attempt 1: RecipeCore at 00:05:34, native crash at 00:05:40.
+- Attempt 2: RecipeCore at 00:10:43, native crash at 00:10:48.
+- There is no Calamity JavaScript exception before the native crash.
+- Memory is not at the Android low-memory threshold.
+
+Comparison with v21.5 log
+-------------------------
+- The v21.5 test in visible_logs (13) reached RecipeCore with the same 4009 recipes and then successfully reached Calamity OnWorldLoad / WorldEntryPreload.
+- Therefore v21.5.1 is treated as a world-load regression rather than a pre-existing world/save failure.
+
+Hotfix strategy
+---------------
+1. Restore TL/Core/ModLoader.js exactly to v21.5.
+2. Restore TL/Hooks/WorldGen.js exactly to v21.5.
+3. Restore TL/Hooks/Player.js exactly to v21.5.
+4. Restore TL/Hooks/Wiring.js exactly to v21.5.
+5. Restore AbyssShrineVisualSystem and RoxShrineVisualSystem exactly to v21.5 (no new Map-backed state during world load).
+6. Keep only callback-local tile-type early-outs that do not change hook registration, callback topology or ModSystem state.
+7. Keep IronBall's original mining callbacks so the GlobalTile dispatch profile remains stable; add only cheap type guards inside them.
+8. No boss AI, projectile AI, summon AI, worldgen, IDs, recipes, drops or balance changes.
+
+Safe mining fast paths retained
+-------------------------------
+- Boss trophies reject non-240 tiles before registry/system lookup.
+- Boss relics reject non-617 tiles before system/position lookup.
+- Thank You Painting rejects non-242 tiles early.
+- Effigy/Rox/Abyss mining callback rejects unrelated tile types before shrine lookups.
+- Iron Ball callbacks reject non-185 tiles before registry lookup while preserving the same callback set as v21.5.
+
+Static validation
+-----------------
+JS syntax: PASS — 1057/1057
+JSON parse: PASS — 59/59
+Relative imports: PASS — 4660 checked, 0 missing
+PNG files: 1229
+Package files: 2478
+Register directory: PASS — byte-identical to v21.5
+Changed files vs v21.5: 15, all under Content/Tiles/
+Framework/hook files changed vs v21.5: 0
+ZIP integrity: PASS
+GUID: 64881cb8-7bc3-4b36-9516-304a7f7c5a30
+
+Runtime validation required
+---------------------------
+First test the exact world/mod combination that crashed at 75%. If it loads, test ordinary Stone/Dirt mining and ore mining separately before making any further tile-loader optimization.
