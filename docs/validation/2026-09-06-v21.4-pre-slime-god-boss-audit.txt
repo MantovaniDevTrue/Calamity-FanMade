@@ -1,0 +1,40 @@
+Calamity FM — Pre-Slime God Boss Audit v21.4
+============================================
+
+Base: Calamity_FM_Remaining_Summons_Lifecycle_Audit_v21_3.tl (user-validated)
+Official behavior reference: CalamityModPublic-1.4.4
+
+Applied runtime corrections:
+- Desert Scourge Head defense restored from 2 to 4.
+- Desert Scourge Spit lifetime restored to 600 ticks, source fade timing/trail metadata restored, and player velocity is halved on hit.
+- Decapodita Sprout now spawns Crabulon from player.position with the original random X range [-160, +160] and Y offset -320.
+- Perforator Ichor Shot/Blood Geyser tile collision now uses the original ai[1] vertical gate.
+- Perforator Ichor Blob tile collision now uses ai[1] - 48 and a circular 16 px damage hitbox.
+- Existing Perforator mobile optimizations remain: reduced projectile lifetime / low-FX behavior was not reverted.
+- Unstable Crimulan Glob now enters fall/gravity behavior only when ai[0] == 1, with ai[1] as its 60-tick timer.
+- Unstable Crimulan/Ebonian Globs now use the original circular 12 px collision footprint.
+
+Preserved intentionally:
+- v21.3 summon/minion fixes.
+- Desert Scourge / Desert Nuisance single-entity virtual-worm optimization.
+- Perforator worm/spawn smoothing and reduced fight particle allocation.
+- Slime God combined native boss-bar / possession adaptations.
+- Existing item/NPC/projectile/buff registry order and IDs.
+
+Static validation:
+- JavaScript syntax: PASS — 1056/1056.
+- JSON parse: PASS — 59/59.
+- Relative imports: PASS — 4650 checked, 0 missing.
+- Archive entries: PASS — 2740/2740, same entry order as v21.3.
+- Changed archive entries: PASS — 5 expected runtime files only.
+- RegisterItems/RegisterNPCs/RegisterProjectiles/RegisterBuffs: UNCHANGED.
+- ZIP integrity: PASS.
+
+Changed files:
+- Modified/1.mod/Content/NPCs/Bosses/DesertScourge/DesertScourgeHead.js
+- Modified/1.mod/Content/Projectiles/Boss/DesertScourgeSpit.js
+- Modified/1.mod/Content/Projectiles/Boss/PerforatorProjectiles.js
+- Modified/1.mod/Content/Projectiles/Boss/SlimeGodProjectiles.js
+- Modified/1.mod/Content/Items/SummonItems/DecapoditaSprout.js
+
+Runtime test priority: Desert Scourge spit/contact; Crabulon summon position; Perforator falling shots/blob collision; Slime God crimson glob trajectories.
