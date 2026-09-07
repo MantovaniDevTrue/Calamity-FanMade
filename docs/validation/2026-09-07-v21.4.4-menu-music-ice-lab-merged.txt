@@ -1,0 +1,39 @@
+Calamity FM v21.4.4 — Menu/Music + Ice Lab Merge
+==================================================
+
+Merged sources
+--------------
+1. Calamity_FM_Menu_Music_Persistence_Fix_v21_4_3.tl
+2. Calamity_FM_PreSlimeGod_Boss_Audit_v21_4_3_Ice_Lab_Pipes_Dynamic_Lighting_Fix-1.tl
+
+Merge policy
+------------
+- v21.4.3 menu/music lifecycle fixes preserved exactly:
+  * TL/Core/ModLoader.js
+  * TL/Hooks/Main.js
+  * TL/Loaders/MenuLoader.js
+- Ice Lab / projectile compatibility changes preserved from the uploaded lab build:
+  * Content/Projectiles/Boss/PerforatorProjectiles.js
+  * Content/Projectiles/Boss/SlimeGodProjectiles.js
+  * Content/Projectiles/Rogue/SandDollarProjectiles.js
+  * Content/Projectiles/Summon/PolypLauncherProjectiles.js
+  * Content/Systems/LabInvisibleAnchorSystem.js
+  * Content/UI/LabStructureOverlayHooks.js
+  * Data/OfficialSchematics/IceLabSchematic.js
+- TL/Core/FileManager.js intentionally kept from the newer v21.4.2/v21.4.3 branch.
+  The uploaded Ice Lab build contained the older implementation without an ExistsDirectory guard,
+  which would reintroduce the crash when /Players or /Worlds does not exist.
+- Settings package version incremented to 21 for the merged package.
+- GUID preserved: 64881cb8-7bc3-4b36-9516-304a7f7c5a30
+
+Validation
+----------
+JS syntax: PASS — 1056/1056
+JSON parse: PASS — 59/59
+Relative imports: PASS — 4655 checked, 0 missing
+Package files: 2477
+ZIP integrity: PASS
+
+Result
+------
+The merged package contains both feature/fix branches without restoring the older FileManager regression.
