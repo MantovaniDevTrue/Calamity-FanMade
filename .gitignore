@@ -1,0 +1,23 @@
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Local launcher/runtime state
+.tlpro/
+.tlauncher/
+logs/
+*.log
+
+# Temporary output (versioned build directories remain trackable)
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Generated checksum scratch files
+*.sha256.tmp
