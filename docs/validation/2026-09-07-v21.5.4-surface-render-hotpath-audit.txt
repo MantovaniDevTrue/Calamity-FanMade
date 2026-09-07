@@ -1,0 +1,45 @@
+Calamity FM v21.5.4 — Surface Render Hotpath Audit
+===================================================
+
+Base: v21.5.3 Aerialite One-Time Persistence Fix
+Purpose: reduce Calamity overhead on ordinary vanilla surface frames without changing gameplay, biome behavior, mining, boss AI, projectile AI, summons, damage, loot or worldgen.
+
+Observed video evidence
+-----------------------
+- Sustained block breaking drops the on-screen counter into the low teens (sample: ~11 FPS at 28 s).
+- When block breaking stops / death screen is shown, the counter recovers to ~61 FPS (sample: 31 s).
+- This mining-specific collapse is treated as a separate external tile/mining hotpath and is not modified by this build.
+
+Changes
+-------
+1. SceneEffectLoader normal-surface fast path
+   - When no Calamity scene and no Calamity menu are active, skip custom sky Color.Lerp/Color.Multiply/native ColorOfTheSkies writes entirely.
+   - Preserve a short 24-tick handoff after leaving a Calamity scene to avoid abrupt visual snapping.
+   - Reset transition state on save/quit.
+
+2. SurfaceBackgroundLoader visibility cache
+   - Cache whether any Calamity surface background layer actually has visible alpha.
+   - Far/middle custom background draw paths now return immediately on ordinary vanilla surface frames.
+   - Preserve menu and biome transition drawing.
+   - Skip native Color multiplication for background layers whose alpha is effectively zero.
+
+3. Main surface background visibility update
+   - Refresh the custom-background visibility cache after Terraria updates front-layer fades and Calamity applies its fade adjustments.
+
+Static validation
+-----------------
+JavaScript syntax: PASS — 1057/1057
+JSON parse: PASS — 59/59
+Relative imports: PASS — 4660 checked, 0 missing
+Package files: 2478
+Changed files vs v21.5.3: 3
+  - Modified/1.mod/TL/Hooks/Main.js
+  - Modified/1.mod/TL/Loaders/BackgroundLoaders.js
+  - Modified/1.mod/TL/Loaders/SceneEffectLoader.js
+Added files: 0
+Removed files: 0
+ZIP integrity: PASS
+
+Notes
+-----
+This build deliberately does not attempt to hide or compensate for a third-party mining mod that performs synchronous work when tiles are hit/broken. The goal is to remove Calamity-only surface-render overhead so normal surface gameplay does not pay for custom biome/menu rendering while those features are inactive.
