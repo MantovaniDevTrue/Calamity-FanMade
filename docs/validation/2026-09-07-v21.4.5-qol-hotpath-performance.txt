@@ -1,0 +1,105 @@
+Calamity FM v21.4.5 — QoL Hotpath Performance Fix
+===================================================
+
+Base
+----
+Calamity_FM_v21_4_4_Menu_Music_Ice_Lab_Merged.tl
+
+Reason for this build
+---------------------
+The supplied runtime log showed severe frame-time pressure after entering a world with several QoL mods enabled. The strongest Calamity-side evidence was not boss/projectile AI: it was post-load migration work and permanently registered per-tick systems.
+
+Observed log evidence
+---------------------
+- Recipe environment: numRecipes=4009, maxRecipes=3600, overflow=409. Calamity RecipeCore tracked 226 recipes.
+- Sulphurous Sea proxy repair: 1202 cells queued.
+- Abyss ambience proxy repair: 1837 cells queued.
+- Six laboratory physical-proxy migrations then ran sequentially from about 22:04:35 to 22:05:30:
+  * planetoid: checked=13125, changed=2284, activeTicks=546
+  * jungle: checked=7830, changed=4102, activeTicks=326
+  * ice: checked=7084, changed=2720, activeTicks=294
+  * sunken: checked=11067, changed=3628, activeTicks=460
+  * underworld: checked=10425, changed=3543, activeTicks=434
+  * onyx: checked=8643, changed=1934, activeTicks=360
+- Android later reported memory pressure with approximately 913 MiB available, but not a hard OOM.
+
+Root cause fixed for fresh worlds
+---------------------------------
+Fresh-world lab placement already applies the current LabPhysicalProxy while the world is generated. However, WorldgenBiomeRuntime was persisting the old proxyV5 completion marker while LabInvisibleAnchorSystem checks proxyV7. Therefore a freshly generated world could unnecessarily walk every schematic again after entering gameplay.
+
+v21.4.5 now persists the current proxyV7 completion marker for all freshly generated labs (planetoid, jungle, ice, sunken, underworld, onyx). It also persists the current Sulphurous Sea and Abyss proxy-safety completion versions when their fresh-world content has already been placed with the current proxy rules.
+
+Runtime optimizations
+---------------------
+1. TL/Loaders/SystemLoader.js
+   - Update() no longer enters one-shot ModSystem instances after they have reached Done=true.
+   - Lifecycle callbacks remain registered; systems that reset Done in OnWorldLoad still run normally on the next world.
+
+2. Content/Systems/SulphurousSeaProxyRepairSystem.js
+   - Migration budget reduced from 96 to 32 cells per pulse.
+   - The post-load coordinator lease is retained across unfinished chunks instead of Release() after every chunk.
+   - This removes repeated start/finish + 30-tick cooldown churn while keeping each frame lighter.
+
+3. Content/Systems/AbyssAmbientProxyRepairSystem.js
+   - Same coordinator/budget optimization as Sulphurous Sea proxy repair.
+
+4. Content/Systems/LabInvisibleAnchorSystem.js
+   - Legacy-world migration budget reduced from 48 to 16 cells per pulse.
+   - Startup delay increased from 300 to 600 ticks.
+   - Once all required lab migrations are complete, Done=true removes this system from the hot Update dispatcher.
+   - Fresh worlds with v21.4.5 skip these scans entirely through the proxyV7 markers above.
+
+5. Core/AcidRainTier1Runtime.js
+   - While Acid Rain is inactive, natural-start eligibility is probed at 4 Hz instead of 60 Hz.
+   - Active Acid Rain timing remains full-rate (one update per game tick).
+   - The natural night roll remains one roll per eligible night; this change only delays eligibility detection by at most a fraction of a second.
+
+6. Content/Systems/AbyssMusicSystem.js
+   - Outside the Abyss, with no active/candidate/fading track, layer probing is reduced to 6 Hz.
+   - Candidate/current playback returns to full-rate observation immediately.
+
+7. Content/Systems/AbyssAmbientLightSystem.js
+   - When no ambient-light bucket is near the player, proximity probing is reduced to 5 Hz.
+   - Once nearby, lighting remains full-rate so visible Abyss lights are not deliberately frame-skipped.
+
+Files changed relative to v21.4.4
+--------------------------------
+Exactly 8 runtime files:
+- Modified/1.mod/TL/Loaders/SystemLoader.js
+- Modified/1.mod/Content/Systems/SulphurousSeaProxyRepairSystem.js
+- Modified/1.mod/Content/Systems/AbyssAmbientProxyRepairSystem.js
+- Modified/1.mod/Content/Systems/LabInvisibleAnchorSystem.js
+- Modified/1.mod/Core/WorldgenBiomeRuntime.js
+- Modified/1.mod/Core/AcidRainTier1Runtime.js
+- Modified/1.mod/Content/Systems/AbyssMusicSystem.js
+- Modified/1.mod/Content/Systems/AbyssAmbientLightSystem.js
+
+Preserved behavior / compatibility
+----------------------------------
+- No boss AI, summon AI, projectile AI, damage, loot, recipes, world progression or combat balance changed in this build.
+- The v21.3 summon fixes remain present.
+- The v21.4 boss audit remains present.
+- NPC registry compatibility from v21.4.1 remains present.
+- Missing Players/Worlds directory protection from v21.4.2 remains present.
+- Menu/music persistence and Ice Lab merge from v21.4.4 remain present.
+- NPCLoader.js, ProjectileLoader.js, ItemLoader.js and BuffLoader.js are byte-identical to v21.4.4, so content registry ordering was not modified.
+
+Static validation
+-----------------
+JS syntax: PASS — 1056/1056
+JSON parse: PASS — 59/59
+Relative imports: PASS — 4655 checked, 0 missing
+Package files: PASS — 2477 files (same as v21.4.4)
+Changed files vs v21.4.4: 8
+ZIP entries: 2740 total, 2477 files
+ZIP integrity: PASS
+
+Important test note
+-------------------
+This report proves package/static integrity, not runtime FPS. Test v21.4.5 on the same device, world and QoL mod combination that produced the supplied log. Compare:
+1. FPS immediately after entering the world.
+2. FPS after 1-2 minutes.
+3. Normal exploration away from Calamity biomes/labs.
+4. Boss combat.
+
+If FPS still remains near 20 after post-load work is no longer present, the next diagnostic step should be a temporary hook profiler build to measure cumulative Player/NPC/Projectile/global hook time with the QoL modpack enabled, rather than removing content blindly.
