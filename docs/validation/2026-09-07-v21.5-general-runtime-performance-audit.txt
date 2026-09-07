@@ -1,0 +1,67 @@
+Calamity FM v21.5 — General Runtime Performance Audit
+========================================================
+
+Base
+----
+Calamity_FM_v21_4_5_QoL_Hotpath_Performance_Fix.tl
+GUID preserved: 64881cb8-7bc3-4b36-9516-304a7f7c5a30
+Scope: runtime/dispatch performance only. No content registry edits.
+
+Primary changes
+---------------
+1. DispatchProfile architecture
+   - Added TL/Core/DispatchProfile.js, byte-identical to the DispatchProfile implementation in the supplied ExMod v7.12 reference.
+   - ModItem, GlobalItem, ModNPC, GlobalNPC, ModPlayer and ModSystem now build callback profiles once when registered.
+   - Hot loaders dispatch only to classes that actually implement the callback, instead of invoking inherited no-op/default methods across the whole registry.
+
+2. Item hot paths
+   - ItemLoader now keeps callback handler counts and direct type->instance lookup.
+   - Frequent item/player paths (HoldItem, styles, speed multipliers, inventory, equipment/accessories, weapon modifiers, shooting, consuming, healing, mana, crafting-related callbacks and inventory drawing) skip empty dispatch paths.
+   - Player hooks resolve permanently-empty optional callback groups once during initialization (CanAutoReuseItem, UseAnimation, GetHealMana, OnConsumeMana).
+
+3. Player and system lookup/dispatch
+   - ModPlayer registration builds handler lists once.
+   - ModPlayer.getByName is now direct-map lookup instead of a linear scan across the 22 registered ModPlayer instances.
+   - ModSystem.getByName is now direct-map lookup instead of a linear scan across the 100 registered systems.
+   - System callbacks use prebuilt handler arrays.
+   - Update systems that set Done=true leave the active 60 Hz list; dormant systems are checked at low frequency for reactivation as a compatibility safeguard. OnWorldLoad rebuilds the active/dormant lists.
+
+4. NPC hot paths
+   - ModNPC/GlobalNPC dispatch uses callback profiles and handler lists.
+   - Frequent PreAI/AI/PostAI/draw/frame/death/hit/platform callbacks avoid empty class calls.
+   - NPC UpdateLifeRegen/DOT hook is not installed because no ModNPC or GlobalNPC in the current Calamity content implements that callback.
+   - NPC buffImmune arrays are no longer resized for every vanilla/foreign NPC in SetDefaults/ScaleStats. Foreign/vanilla NPCs are resized lazily only if a custom Calamity buff is actually applied. Calamity NPCs retain normal resize.
+
+5. Ocean Spirit light pet
+   - Native equipped-light probing no longer runs every frame while the pet is not equipped. Equipped state remains full-rate; inactive detection is throttled.
+
+Preserved behavior / exclusions
+-------------------------------
+- No Register/*.js file changed.
+- Item/NPC/projectile/buff registration order is unchanged.
+- Settings GUID is unchanged.
+- Boss AI, projectile AI, summon AI, damage, loot, recipes, worldgen, animation cadence and combat logic were not intentionally reduced or simplified.
+- Existing v21.4.5 post-load/world-repair performance fixes are retained.
+- Player UpdateLifeRegen callbacks are retained; only the unused NPC DOT hook is omitted.
+- This build does not patch or depend on any third-party QoL mod.
+
+Static package validation
+-------------------------
+JavaScript syntax: PASS — 1057/1057 (node --check)
+JSON syntax: PASS — 59/59
+Relative imports: PASS — 4660 checked, 0 missing
+PNG signatures: PASS — 1229/1229
+Register scripts: PASS — 11/11 byte-identical to v21.4.5
+GUID: PASS — unchanged
+Package files: 2478 (v21.4.5 had 2477; only new file is DispatchProfile.js)
+Changed/new runtime files vs v21.4.5: 14
+Duplicate class-name audit:
+  ModItem: 358 classes, 0 duplicate names
+  ModNPC: 55 classes, 0 duplicate names
+  ModPlayer: 22 classes, 0 duplicate names
+  ModSystem: 100 classes, 0 duplicate names
+DispatchProfile reference hash: matches supplied ExMod v7.12 exactly
+
+Important test note
+-------------------
+These checks prove package integrity, syntax, imports, registry preservation and the static dispatch assumptions. They do not measure device FPS. Runtime performance must be validated in TLPro on Android, ideally with the same heavy QoL mod set used for the v21.4.5 comparison. Suggested measurements: menu idle, first world entry, 1-2 minutes idle/moving, crafting UI, dense enemy combat and a boss fight.
