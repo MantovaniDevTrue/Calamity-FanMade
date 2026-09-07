@@ -1,0 +1,37 @@
+Calamity FM v21.4.2 — Missing Save Directories Hotfix
+=====================================================
+
+Base: Calamity FM Pre-Slime God Boss Audit v21.4.1 NPC Registry Compat
+
+Crash fixed
+-----------
+PostSetupContent called CheckFiles('Players/', '.plr') and CheckFiles('Worlds/', '.wld').
+FileManager.ListFiles() directly called System.IO.Directory.GetFiles() even when the
+save directory did not exist. On a clean/missing save folder this raised a native
+DirectoryNotFoundException and stopped mod loading.
+
+Fix
+---
+TL/Core/FileManager.js only:
+- ListFiles(path) now returns [] when the path is unsafe or the directory does not exist.
+- ListDirectories(path) follows the same contract for consistency and future safety.
+- Existing directories still use the same native Directory.GetFiles/GetDirectories calls.
+- No try/catch was added.
+- No boss, summon, NPC registry, item, projectile, buff, worldgen, damage or balance code changed.
+
+Static validation
+-----------------
+JS syntax: PASS — 1056/1056
+JSON parse: PASS — 59/59
+Package files: 2477
+Relative imports: PASS — 0 missing
+ZIP integrity: PASS
+Runtime files changed from v21.4.1: 1
+  Modified/1.mod/TL/Core/FileManager.js
+Added files: 0
+Removed files: 0
+
+Expected behavior
+-----------------
+If /Players or /Worlds does not exist yet, PostSetupContent simply finds zero files
+and continues loading. Once those directories exist, cleanup behavior is unchanged.
