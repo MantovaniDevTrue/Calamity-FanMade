@@ -1,0 +1,2 @@
+import { Terraria } from './../../../../TL/ModImports.js';import { ModItem } from './../../../../TL/ModItem.js';
+export class Murasama extends ModItem{constructor(){super();this.Texture='Items/Weapons/Melee/Murasama';}SetDefaults(){const i=this.Item;i.width=44;i.height=68;i.damage=2200;i.crit=61;i.knockBack=6.5;i.useAnimation=25;i.useTime=5;i.useStyle=Terraria.ID.ItemUseStyleID.Swing;i.value=Terraria.Item.sellPrice(0,20,0,0);i.rare=Terraria.ID.ItemRarityID.Purple;}CanUseItem(){return false;}}

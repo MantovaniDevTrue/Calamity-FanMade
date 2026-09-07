@@ -1,0 +1,21 @@
+{
+  "packStructureVersion": 33,
+  "title": "Calamity FM",
+  "guid": "64881cb8-7bc3-4b36-9516-304a7f7c5a30",
+  "descriptionEnglish": "<h2>Calamity Mod FM</h2><b>FM = Fan-Made.</b><br/>An independent fan-made adaptation of Calamity Mod for Terraria Mobile through TLPro/TerLauncher. The goal is to recreate the original progression, bosses, weapons, armor, accessories, biomes, music and gameplay.<br/><br/><b>Version 1</b> completes the current Pre-Hardmode content scope through The Slime God.<br/><br/><h3>Credits</h3>• Original Calamity Mod, content, artwork, concepts and design: Calamity Mod Team<br/>• Original music: DM DOKURO and the other composers credited by Calamity Mod<br/>• TLPro adaptation and project lead: Mantovani<br/>• Collaboration: Bryan, Harpiel and Simon<br/>• Recipe Limit Fix / TLPro recipe compatibility code: Gst378<br/><br/>This is an independent, unofficial fan project. It is not developed, published, affiliated with, or endorsed by the Calamity Mod Team. All rights and credit for the original Calamity content belong to their respective creators.<hr><h2>Calamity Mod FM</h2><b>FM = Fan-Made.</b><br/>Uma adaptação fan-made independente do Calamity Mod para Terraria Mobile através do TLPro/TerLauncher. O objetivo é recriar a progressão, chefes, armas, armaduras, acessórios, biomas, músicas e jogabilidade do original com a maior fidelidade possível.<br/><br/><b>Versão 1</b> conclui o escopo atual do Pre-Hardmode até The Slime God.<br/><br/><h3>Créditos</h3>• Calamity Mod original, conteúdo, artes, conceitos e design: Calamity Mod Team<br/>• Músicas originais: DM DOKURO e os demais compositores creditados pelo Calamity Mod<br/>• Adaptação para TLPro e liderança do projeto: Mantovani<br/>• Colaboração: Bryan, Harpiel e Simon<br/>• Recipe Limit Fix / código de compatibilidade de receitas no TLPro: Gst378<br/><br/>Este é um projeto fan-made independente e não oficial. Ele não é desenvolvido, publicado, afiliado ou endossado pela Calamity Mod Team. Todos os direitos e créditos do conteúdo original pertencem aos seus respectivos criadores.",
+  "authors": [
+    {
+      "file": "1.webp",
+      "name": "Mantovani",
+      "color": "#ffdb37ff",
+      "icon_height": 70
+    },
+    {
+      "file": "2.webp",
+      "name": "Calamity Team",
+      "color": "#ffc30303",
+      "icon_height": 70
+    }
+  ],
+  "version": "21.5.7"
+}

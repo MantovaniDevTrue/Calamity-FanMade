@@ -1,0 +1,3 @@
+import { Terraria } from './../../../../TL/ModImports.js';import { ModItem } from './../../../../TL/ModItem.js';import { ModBuff } from './../../../../TL/ModBuff.js';export class BloodyMary extends ModItem{constructor(){super();this.Texture='Items/Potions/Alcohol/BloodyMary';this.ResearchUnlockCount=20;}SetDefaults(){const b=Number(ModBuff.getTypeByName('BloodyMaryBuff')||0);this.DefaultToFood(b,21600,false,17);this.Item.width=34;this.Item.height=56;this.Item.value=Terraria.Item.sellPrice(0,0,2,0);this.Item.rare=1;}
+ AddRecipes(){this.CreateRecipe(10).AddIngredient(31,10).AddIngredient(4271,1).AddTile(94).Register();}
+}

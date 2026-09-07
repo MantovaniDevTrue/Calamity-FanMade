@@ -1,0 +1,1 @@
+import { Terraria } from './../../../TL/ModImports.js';import { ModItem } from './../../../TL/ModItem.js';export class Laudanum extends ModItem{constructor(){super();this.Texture='Items/Accessories/Laudanum';this.ResearchUnlockCount=1;}SetDefaults(){this.Item.width=26;this.Item.height=26;this.Item.value=Terraria.Item.buyPrice(0,2,0,0);this.Item.rare=2;this.Item.accessory=true;}}

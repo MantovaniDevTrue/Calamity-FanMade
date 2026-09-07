@@ -1,0 +1,4 @@
+import { Terraria, Modules } from './../../../TL/ModImports.js';import { ModProjectile } from './../../../TL/ModProjectile.js';
+const {Vector2}=Modules;
+export class BlackAnurianBubble extends ModProjectile{constructor(){super();this.Texture='Projectiles/Magic/BlackAnurianBubble';}SetDefaults(){const p=this.Projectile;p.width=18;p.height=18;p.friendly=true;p.magic=true;p.penetrate=2;p.timeLeft=240;p.tileCollide=true;p.ignoreWater=true;p.aiStyle=1;}AI(p){p.velocity=Vector2.new(Number(p.velocity.X)*.995,Number(p.velocity.Y)*.995);p.rotation+=.06;}}
+export class BlackAnurianPlankton extends ModProjectile{constructor(){super();this.Texture='Projectiles/Magic/BlackAnurianPlankton';}SetDefaults(){const p=this.Projectile;p.width=8;p.height=8;p.friendly=true;p.magic=true;p.penetrate=1;p.timeLeft=150;p.tileCollide=true;p.ignoreWater=true;p.aiStyle=1;}AI(p){p.rotation+=.15;}}

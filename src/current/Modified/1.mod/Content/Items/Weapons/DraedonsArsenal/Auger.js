@@ -1,0 +1,14 @@
+import { Terraria, Modules } from './../../../../TL/ModImports.js';
+import { ModItem } from './../../../../TL/ModItem.js';
+import { ModProjectile } from './../../../../TL/ModProjectile.js';
+import { WorldDB } from './../../../../TL/WorldDB.js';
+import { IsSecondaryDown, OwnerIndex, ConsumeAugerBuffed } from './../../../../Core/DraedonTier1Runtime.js';
+const { Vector2 }=Modules;let _holdoutType=0;function HoldoutType(){return _holdoutType||(_holdoutType=Math.floor(Number(ModProjectile.getTypeByName('AugerHoldout'))||0));}const NewProjectile=Terraria.Projectile['int NewProjectile(IEntitySource spawnSource, Vector2 position, Vector2 velocity, int Type, int Damage, float KnockBack, int Owner, float ai0, float ai1, float ai2, NewProjectileModifier modifer)'];
+function N(v,f=0){const n=Number(v);return Number.isFinite(n)?n:f;}function Source(p,i){try{return p['IEntitySource GetProjectileSource_Item(Item item)'](i);}catch(_){}try{return null;}catch(_){return null;}}function Aim(player){const c=Terraria.PlayerCenter(player);try{const m=Terraria.Main.MouseWorld,dx=N(m.X)-N(c.X),dy=N(m.Y)-N(c.Y),d=Math.sqrt(dx*dx+dy*dy);if(d>.001)return Vector2.new(dx/d,dy/d);}catch(_){}return Vector2.new(N(Terraria.PlayerDirection(player),1),0);}
+export class Auger extends ModItem{
+ constructor(){super();this.Texture='Items/Weapons/DraedonsArsenal/Auger';this.ResearchUnlockCount=1;}
+ SetDefaults(){const i=this.Item;i.width=26;i.height=26;i.damage=55;i.melee=true;i.useTime=12;i.useAnimation=12;i.knockBack=12;i.autoReuse=true;i.useStyle=Terraria.ID.ItemUseStyleID.Shoot;i.noMelee=true;i.channel=true;i.noUseGraphic=true;i.value=Terraria.Item.buyPrice(0,5,0,0);i.rare=Terraria.ID.ItemRarityID.Orange;i.shoot=ModProjectile.getTypeByName('AugerHoldout');i.shootSpeed=1;this.MenuCategories.push('melee');}
+ CanUseItem(item,player){const owner=OwnerIndex(player);if(IsSecondaryDown(owner))return false;const t=HoldoutType();try{return !(t>0&&Number(player.ownedProjectileCounts[t])>0);}catch(_){return true;}}
+ Shoot(item,player,position,velocity,type,damage,knockBack){const t=HoldoutType()||Number(type||0);if(!(t>0))return false;const owner=OwnerIndex(player),buffed=ConsumeAugerBuffed(owner),aim=Aim(player),c=Terraria.PlayerCenter(player);try{NewProjectile(Source(player,item),c,aim,t,Math.max(1,Math.floor(N(damage,55))),N(knockBack,12),owner,buffed?1:0,0,0,null);}catch(_){}return false;}
+ AddRecipes(){this.CreateRecipe().AddIngredient(ModItem.getTypeByName('MysteriousCircuitry'),5).AddIngredient(ModItem.getTypeByName('DubiousPlating'),7).AddIngredient(ModItem.getTypeByName('AerialiteBar'),4).AddIngredient(ModItem.getTypeByName('SeaPrism'),7).AddCondition(() => !!WorldDB.Instance && WorldDB.get('calamity:draedon:sunkenSeaSchematicFound') === true).AddTile(Terraria.ID.TileID.Anvils).Register();}
+}

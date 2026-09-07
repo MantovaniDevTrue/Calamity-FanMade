@@ -1,0 +1,12 @@
+import { Terraria, Modules } from './../../../../TL/ModImports.js';
+import { ModItem } from './../../../../TL/ModItem.js';
+import { ModProjectile } from './../../../../TL/ModProjectile.js';
+import { PumplerHoldoutActive, RegisterPumplerAim } from './../../../Projectiles/Ranged/PumplerProjectiles.js';
+const { Vector2 }=Modules;const NewProjectile=Terraria.Projectile['int NewProjectile(IEntitySource spawnSource, Vector2 position, Vector2 velocity, int Type, int Damage, float KnockBack, int Owner, float ai0, float ai1, float ai2, NewProjectileModifier modifer)'];function N(v,f=0){const n=Number(v);return Number.isFinite(n)?n:f;}function aim(player,v){try{const m=Terraria.Main.MouseWorld,c=player.MountedCenter,dx=N(m.X)-N(c.X),dy=N(m.Y)-N(c.Y),d=Math.sqrt(dx*dx+dy*dy);if(d>8)return Vector2.new(dx/d,dy/d);}catch(_){}const x=N(v&&v.X),y=N(v&&v.Y),d=Math.sqrt(x*x+y*y);return d>.001?Vector2.new(x/d,y/d):Vector2.new(N(Terraria.PlayerDirection(player),1),0);}function src(p,i){try{return p['IEntitySource GetProjectileSource_Item(Item item)'](i);}catch(_){return null;}}
+export class Pumpler extends ModItem{
+ constructor(){super();this.Texture='Items/Weapons/Ranged/Pumpler';this.ResearchUnlockCount=1;}
+ SetDefaults(){const i=this.Item;i.width=72;i.height=34;i.damage=26;i.ranged=true;i.useTime=30;i.useAnimation=30;i.useStyle=Terraria.ID.ItemUseStyleID.Shoot;i.noMelee=true;i.knockBack=1.25;i.value=Terraria.Item.buyPrice(0,0,40,0);i.rare=Terraria.ID.ItemRarityID.Green;i.noUseGraphic=true;i.UseSound=Terraria.ID.SoundID.Item20;i.autoReuse=true;i.channel=true;i.shoot=ModProjectile.getTypeByName('PumplerHoldout');i.shootSpeed=11;this.MenuCategories.push('ranged');}
+ CanUseItem(item,player){return !PumplerHoldoutActive(Terraria.PlayerIndex(player));}
+ Shoot(item,player,position,velocity,type,damage,kb){const t=Number(ModProjectile.getTypeByName('PumplerHoldout')||0);if(!(t>0))return false;const o=Terraria.PlayerIndex(player),a=aim(player,velocity);RegisterPumplerAim(o,a);NewProjectile(src(player,item),player.MountedCenter,a,t,Math.max(1,Math.floor(N(damage)>0?N(damage):N(item.damage,26))),N(kb,1.25),o,0,0,0,null);return false;}
+ AddRecipes(){this.CreateRecipe().AddIngredient(Terraria.ID.ItemID.IllegalGunParts,1).AddIngredient(Terraria.ID.ItemID.Pumpkin,30).AddIngredient(Terraria.ID.ItemID.PumpkinSeed,5).AddTile(Terraria.ID.TileID.Anvils).Register();}
+}

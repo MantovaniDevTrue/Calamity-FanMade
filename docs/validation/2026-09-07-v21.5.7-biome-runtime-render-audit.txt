@@ -1,0 +1,94 @@
+Calamity FM v21.5.7 — Biome Runtime / Render Audit
+===================================================
+Base: Calamity FM v21.5.6 — Abyss Worldgen Only Hotfix
+
+Goal
+----
+Audit performance paths that only become active near/in Calamity biomes and laboratories,
+without changing enemy spawn balance, boss AI, combat, worldgen layout, ambience density,
+or dynamic-lighting behavior.
+
+Runtime/render changes
+----------------------
+1. Sunken Sea ecology drawing
+   - Replaced full marker-list traversal with 32x32-tile spatial buckets.
+   - Added whole-biome bounds rejection before visible-marker selection.
+   - Visible set only rebuilds after the camera crosses an 8-tile cache cell.
+   - Reuses native Vector2 scratch objects instead of allocating two per visible marker/frame.
+   - Coral/prism source Rectangles are cached by frame rather than allocated every frame.
+   - Texture/source work now happens only after a marker passes spatial culling.
+   - Decoration density, frames, flip state and per-visible-marker Lighting.GetColor are preserved.
+
+2. Sunken Sea ecology integrity cleanup
+   - Old behavior: every 300 ticks (~5 s), globally, even if the player was nowhere near Sunken Sea.
+   - New behavior: every 900 ticks (~15 s), only while the local player is inside Sunken Sea.
+   - Normal tile breaks still remove markers immediately through OnAnchorBroken.
+
+3. Sulphurous Sea detail/ambience renderer
+   - Precomputes custom schematic cells for each Sulphurous Scrap once when metadata loads.
+   - Stops rescanning every schematic palette cell on every visible frame.
+   - Reuses the renderer's existing Vector2/Rectangle/origin scratch objects for scraps,
+     columns and sulphurous ambience cells instead of allocating native structs per draw.
+   - Lighting remains per visible cell; visual content/density is unchanged.
+
+4. Abyss ambience broad-phase
+   - Added an overall cached ambience bounds rectangle.
+   - When the camera is outside those bounds, the renderer skips visible-bucket selection entirely.
+   - Existing atlas, 32x32 buckets, 8-tile visible cache and deterministic mobile LOD are preserved.
+
+5. Abyss Shrine visual system
+   - Shrine chest light is still injected every frame when it can affect the visible lighting grid.
+   - Off-screen shrine no longer calls Lighting.AddLight at 60 Hz globally.
+   - Slow smooth-cell integrity scan moved from every 600 ticks globally to every 1800 ticks
+     and only while the shrine is near the camera.
+   - Tile callbacks still remove broken shrine cells immediately.
+
+6. Iron Ball overlay
+   - Cached overall bounds prevents scanning every stored Iron Ball position while off-screen.
+   - Reuses native draw scratch structures for visible Iron Balls.
+
+Explicitly unchanged
+--------------------
+- Enemy spawn rates/weights from v21.5.5/v21.5.6.
+- Acid Rain progression and NPC behavior.
+- Abyss music/layer behavior.
+- Abyss ambient-light aggregation.
+- Lab dynamic-lighting frequency and 8x8 chunk geometry.
+- World generation and old-world migration behavior.
+- Boss AI, projectile AI, summon AI, damage, loot and recipes.
+- Audio compression from v21.5.5.
+
+Static validation
+-----------------
+JavaScript syntax: PASS — 1057 / 1057
+JSON parse: PASS — 59 / 59
+Relative imports: PASS — 4675 checked, 0 missing
+PNG signatures: PASS — 1229 / 1229
+Package file count: PASS — 2478
+RegisterAll: identical to v21.5.6
+RegisterItems: identical to v21.5.6
+RegisterNPCs: identical to v21.5.6
+RegisterProjectiles: identical to v21.5.6
+RegisterBuffs: identical to v21.5.6
+RegisterGlobal: identical to v21.5.6
+RegisterBiomes: identical to v21.5.6
+RegisterBackgrounds: identical to v21.5.6
+GUID: preserved
+ZIP/TL integrity: PASS
+
+Files changed from v21.5.6
+--------------------------
+Settings.json
+Modified/1.mod/Content/Systems/SunkenSeaEcologySystem.js
+Modified/1.mod/Content/Systems/AbyssShrineVisualSystem.js
+Modified/1.mod/Content/UI/LabStructureOverlayHooks.js
+Modified/1.mod/Content/UI/SunkenSeaEcologyDrawHooks.js
+
+In-game test priority
+---------------------
+1. Sunken Sea: stand still, swim through decorated areas, and break a Prism/ecology anchor.
+2. Sulphurous Sea: walk past scrap structures/columns and ambient props.
+3. Abyss Layers 1–4: descend continuously and observe FPS during ambience/music transitions.
+4. Abyss Shrine: verify the purple shrine/chest light is unchanged when on screen.
+5. Draedon Labs: verify dynamic torch/held-light response remains visually identical.
+6. Acid Rain: verify event visuals/spawn remain unchanged from v21.5.6.
