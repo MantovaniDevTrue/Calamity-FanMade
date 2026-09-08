@@ -2,14 +2,14 @@
 
 This file records the preserved development line used during the TLPro / TerLauncher port work.
 
-Status meanings:
+## Status meanings
 
-- **stable** — explicitly confirmed working in-game and safe to use as a regression baseline.
+- **stable** — explicitly confirmed working in game and safe to use as a regression baseline.
 - **current/testing** — current development candidate; not promoted to stable yet.
 - **historical/testing** — intermediate audit/fix build retained for traceability and regression investigation.
 - **milestone/archive** — important older reference retained for comparison.
 
-> A build name containing words such as `Baseline`, `Fix`, `Audit`, or `Validation` does not by itself make that build stable. Promotion requires explicit in-game confirmation.
+A build name containing words such as `Baseline`, `Fix`, `Audit`, `Hotfix`, or `Validation` does not by itself make that build stable. Promotion requires explicit in-game confirmation of the exact tested artifact.
 
 ## v19 line
 
@@ -38,7 +38,7 @@ Status meanings:
 | v21.2 | `Calamity_FM_Summon_Dismiss_Visual_Audit_v21_2.tl` | historical/testing | Dismiss/visual behavior iteration. |
 | v21.2 | `Calamity_FM_Frost_Blossom_Summon_Lifecycle_Fix_v21_2.tl` | historical/testing | Frost Blossom lifecycle fix attempt. |
 | v21.2 | `Calamity_FM_Summon_Lifecycle_FrostBlossom_Fix_v21_2.tl` | historical/testing | Follow-up Frost Blossom lifecycle build. |
-| v21.3 | `Calamity_FM_Remaining_Summons_Lifecycle_Audit_v21_3.tl` | **stable** | Explicitly confirmed working perfectly in-game. Known-good summon/minion lifecycle baseline. Binary is stored under `builds/stable/v21.3-summons-lifecycle/`. |
+| v21.3 | `Calamity_FM_Remaining_Summons_Lifecycle_Audit_v21_3.tl` | **stable** | Explicitly confirmed working perfectly in game. Known-good summon/minion lifecycle baseline. Binary is stored under `builds/stable/v21.3-summons-lifecycle/`. |
 
 ## v21.4 line — pre-Slime God, registry, save paths, lab and menu
 
@@ -53,7 +53,7 @@ Status meanings:
 | v21.4.4 | `Calamity_FM_v21_4_4_Menu_Music_Ice_Lab_Merged.tl` | historical/testing | `Calamity_FM_v21_4_4_Menu_Music_Ice_Lab_Merged_Validation.txt` |
 | v21.4.5 | `Calamity_FM_v21_4_5_QoL_Hotpath_Performance_Fix.tl` | historical/testing | `Calamity_FM_v21_4_5_QoL_Hotpath_Performance_Fix_Validation.txt` |
 
-The v21.4.2 and v21.4.3 version numbers were reused for separate fixes. They are intentionally listed as distinct builds instead of being treated as the same artifact.
+The `v21.4.2` and `v21.4.3` version numbers were reused for separate fixes. They are intentionally preserved as distinct artifacts with descriptive archive-directory suffixes.
 
 ## v21.5 line — runtime performance, persistence, worldgen and rendering
 
@@ -68,10 +68,21 @@ The v21.4.2 and v21.4.3 version numbers were reused for separate fixes. They are
 | v21.5.6 | `Calamity_FM_v21_5_6_Abyss_Worldgen_Only_Hotfix.tl` | historical/testing | No paired validation file located. |
 | v21.5.7 | `Calamity_FM_v21_5_7_Biome_Runtime_Render_Audit.tl` | **current/testing** | `Calamity_FM_v21_5_7_Biome_Runtime_Render_Audit_Validation.txt`; current unpacked source is in `src/current/`, and the packaged candidate is in `builds/testing/v21.5.7-biome-runtime-render-audit/`. |
 
-## Preservation policy
+## Where the actual files are stored
 
-1. `src/current/` is the canonical editable source for the current development build.
-2. Only explicitly confirmed known-good builds belong in `builds/stable/`.
-3. Large `.tl` binaries should not all be duplicated into normal Git history. Important stable/current/milestone artifacts are preserved in the repository; intermediate builds are indexed here and may be stored as release/archive assets when needed.
-4. Validation text belongs in `docs/validation/` and should remain small, searchable, and versioned in Git.
-5. Never overwrite a stable baseline. Add a new version instead.
+- `src/current/` — editable unpacked source for the current development line.
+- `builds/stable/` — exact binaries explicitly confirmed known-good in game.
+- `builds/testing/` — current packaged candidates awaiting or undergoing runtime validation.
+- `archive/milestones/` — major historical checkpoints such as `v19`.
+- `archive/intermediate/` — preserved intermediate `.tl` builds from the `v20.x`, `v21.x`, `v21.4.x`, and `v21.5.x` lines.
+
+All `.tl` binaries are tracked through Git LFS. The source and documentation remain normal Git content so they stay easy to search and compare.
+
+## Preservation rules
+
+1. Never overwrite a stable baseline.
+2. Keep the exact binary that was actually tested; do not rebuild a package after testing and treat it as the same artifact.
+3. Preserve intermediate builds when they are useful for tracing a regression or understanding how a fix evolved.
+4. Store validation text in `docs/validation/` so the reason for each build remains searchable.
+5. Use SHA-256 checksums for preserved packaged artifacts.
+6. Keep complete version numbers everywhere (`v21.5.1`, not `v5.1`).
